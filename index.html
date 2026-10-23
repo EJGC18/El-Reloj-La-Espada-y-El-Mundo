@@ -532,7 +532,7 @@ html,body{margin:0}
 <!-- ================================================= -->
 <!-- ENTRADA 4 · EDWARD CAMAÑO                         -->
 <!-- ================================================= -->
-<article class="post" id="camano" data-book="b2" style="--c:var(--b2);--cs:var(--b2s)">
+<article class="post" id="camano" data-book="b2 b1" style="--c:var(--b2);--cs:var(--b2s)">
   <div class="cover">
     <div>
       <p class="num">Expedición III · Entre la Espada y el Reloj · <em>El arte de la guerra</em> y <em>7 ladrones del tiempo</em></p>
@@ -779,7 +779,7 @@ html,body{margin:0}
   btns.forEach(function(b){b.addEventListener('click',function(){
     var f=b.dataset.f;
     btns.forEach(function(x){x.setAttribute('aria-pressed',String(x===b))});
-    posts.forEach(function(p){p.hidden=!(f==='all'||p.dataset.book===f)});
+    posts.forEach(function(p){p.hidden=!(f==='all'||p.dataset.book.split(' ').indexOf(f)>-1)});
   })});
   var h=location.hash.slice(1); if(h){var el=document.getElementById(h); if(el){posts.forEach(function(p){p.hidden=false}); el.scrollIntoView();}}
 
@@ -787,9 +787,9 @@ html,body{margin:0}
   // Navegación desde el mapa, los sellos y la leyenda
   function go(id){
     var el=document.getElementById(id); if(!el) return;
-    var bk=el.dataset.book;
+    var bk=el.dataset.book.split(' ')[0];
     btns.forEach(function(x){x.setAttribute('aria-pressed',String(x.dataset.f===bk))});
-    posts.forEach(function(p){p.hidden=p.dataset.book!==bk});
+    posts.forEach(function(p){p.hidden=p.dataset.book.split(' ').indexOf(bk)<0});
     var smooth=!window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     el.scrollIntoView({behavior:smooth?'smooth':'auto',block:'start'});
     el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
