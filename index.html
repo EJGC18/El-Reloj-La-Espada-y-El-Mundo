@@ -1,0 +1,841 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>El Reloj, la Espada y el Mundo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Special+Elite&display=swap">
+<style>
+/* Layout: bitácora de expedición sobre pergamino; portada = carta náutica con tres territorios (uno por libro),
+   cada integrante es una "expedición" con su propio color de tinta. Tema único de mapa antiguo, por elección. */
+:root{
+  color-scheme:light;
+  --paper:#f0e2c2; --paper-hi:#f7ecd3; --paper-lo:#e3cfa5; --sea:#d3c99f; --sea2:#c2b98d;
+  --ink:#3a2816; --muted:#6c5233; --line:#bfa375; --gold:#a2722a; --seal:#8f2a1f;
+  --b1:#2e4b6e; --b1s:#e2dcc4;   /* Torre del Reloj: tinta azul de Prusia */
+  --b2:#8f2a1f; --b2s:#ecd4b8;   /* Campamento de la Espada: rojo lacre */
+  --b3:#4b6a37; --b3s:#dfdcb7;   /* Puerto del Mundo: verde oliva de mapa */
+  --f-display:"IM Fell English",Georgia,"Times New Roman",serif;
+  --f-caps:"IM Fell English SC",Georgia,serif;
+  --f-body:"EB Garamond",Garamond,Georgia,serif;
+  --f-type:"Special Elite","Courier New",monospace;
+}
+*{box-sizing:border-box}
+body{color:var(--ink);font:19px/1.7 var(--f-body);
+  background-color:var(--paper);
+  background-image:
+    radial-gradient(ellipse at 50% 40%, rgba(255,248,228,.55) 0%, transparent 55%, rgba(120,84,40,.22) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .36 0 0 0 0 .25 0 0 0 0 .12 0 0 0 .13 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-attachment:fixed,scroll;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3,h4{font-family:var(--f-display);font-weight:400;line-height:1.12;text-wrap:balance;margin:0}
+p{margin:0}
+a{color:var(--b2)}
+:focus-visible{outline:3px dashed var(--seal);outline-offset:3px}
+.wrap{max-width:1000px;margin:0 auto;padding-block:28px 72px;display:flex;flex-direction:column;gap:64px}
+.eyebrow{font:15px/1.2 var(--f-caps);letter-spacing:.08em;color:var(--muted)}
+.prose{max-width:66ch;display:flex;flex-direction:column;gap:14px}
+.orn{display:flex;align-items:center;gap:14px;color:var(--gold);justify-content:center}
+.orn::before,.orn::after{content:"";height:1px;flex:1;max-width:160px;background:linear-gradient(90deg,transparent,var(--gold))}
+.orn::after{transform:scaleX(-1)}
+
+/* ---------- Portada ---------- */
+.hero{display:flex;flex-direction:column;gap:22px;align-items:center;text-align:center}
+.hero .tag{font:15px var(--f-caps);letter-spacing:.14em;color:var(--muted)}
+.hero h1{font-size:clamp(46px,8vw,92px);letter-spacing:.005em;line-height:1}
+.hero h1 em{font-style:italic}
+.hero h1 .w1{color:var(--b1)} .hero h1 .w2{color:var(--b2)} .hero h1 .w3{color:var(--b3)}
+.hero .lede{font-size:21px;font-style:italic;line-height:1.55;color:var(--muted);max-width:52ch}
+.hero .meta{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 22px;font:16px var(--f-caps);color:var(--muted);letter-spacing:.04em}
+.map{margin:6px 0 0;width:100%;filter:drop-shadow(0 10px 18px rgba(80,52,20,.22))}
+.map svg{width:100%;height:auto;display:block}
+.map .zone{cursor:pointer}
+.map .zone .land{transition:fill .2s}
+.map .zone:hover .land,.map .zone:focus-visible .land{fill:var(--paper-hi)}
+.map .zone:hover .lbl,.map .zone:focus-visible .lbl{fill:var(--seal)}
+.map figcaption{font:italic 15px var(--f-body);color:var(--muted);margin-top:10px;text-align:center}
+@media (prefers-reduced-motion:no-preference){
+  .map .route{stroke-dashoffset:0;animation:sail 30s linear infinite}
+  @keyframes sail{to{stroke-dashoffset:-240}}
+  .map .needle{transform-origin:800px 108px;animation:sway 6s ease-in-out infinite}
+  @keyframes sway{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+}
+
+/* ---------- Introducción ---------- */
+.intro{display:grid;grid-template-columns:210px 1fr;gap:32px;border-top:1px solid var(--line);padding-top:36px}
+.intro > *{min-width:0}
+.intro h2{font-size:36px;margin-top:6px}
+.dropcap::first-letter{font-family:var(--f-display);float:left;font-size:4.6em;line-height:.78;padding:8px 10px 0 0;color:var(--seal)}
+@media (max-width:760px){.intro{grid-template-columns:1fr;gap:12px}}
+
+.timeline{display:grid;grid-template-columns:repeat(3,1fr);margin-top:10px;position:relative}
+.timeline::before{content:"";position:absolute;left:0;right:0;top:22px;border-top:3px dotted var(--sepia,#8a6a3f)}
+.tl{position:relative;padding-right:12px;min-width:0}
+.tl .dot{width:18px;height:18px;transform:rotate(45deg);background:var(--c);border:3px solid var(--paper);box-shadow:0 0 0 2px var(--c);margin:14px 0 14px 2px}
+.tl .yr{font:13px var(--f-type);color:var(--c)}
+.tl b{display:block;font-family:var(--f-display);font-weight:400;font-size:20px;line-height:1.2;margin-top:4px}
+.tl small{font:italic 15px/1.4 var(--f-body);color:var(--muted);display:block;margin-top:2px}
+@media (max-width:620px){.timeline{grid-template-columns:1fr;gap:16px}.timeline::before{display:none}.tl .dot{margin:0 0 8px 2px}}
+
+/* Índice de autores: sellos de pasaporte */
+.index h2{font-size:36px;margin:6px 0 22px}
+.authors{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.author{min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:18px 12px;text-decoration:none;color:var(--ink);border:2px dashed var(--c);border-radius:16px;background:rgba(255,248,228,.45);transition:transform .2s}
+.author:nth-child(odd){transform:rotate(-1.6deg)} .author:nth-child(even){transform:rotate(1.4deg)}
+@media (prefers-reduced-motion:no-preference){.author:hover{transform:rotate(0) scale(1.03)}}
+.avatar{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font:20px var(--f-caps);color:var(--c);border:3px double var(--c);background:var(--paper-hi)}
+.author b{font:600 16px/1.25 var(--f-body)}
+.author span{font:italic 15px/1.35 var(--f-body);color:var(--muted)}
+.author .bk{font:12px var(--f-type);letter-spacing:.04em;color:var(--c);font-style:normal}
+@media (max-width:900px){.authors{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:460px){.authors{grid-template-columns:1fr}}
+
+/* Filtro */
+nav.filter{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:rgba(240,226,194,.95);backdrop-filter:blur(4px);padding-block:10px;border-bottom:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap;margin-bottom:-36px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+nav.filter button{font:15px var(--f-caps);letter-spacing:.03em;border:1px solid var(--line);background:var(--paper-hi);color:var(--ink);padding:6px 14px;border-radius:4px;cursor:pointer}
+nav.filter button[aria-pressed="true"]{background:var(--ink);color:var(--paper-hi);border-color:var(--ink)}
+nav.filter i{display:inline-block;width:9px;height:9px;transform:rotate(45deg);margin-right:8px}
+
+/* ---------- Entradas ---------- */
+article.post{display:flex;flex-direction:column;gap:34px;scroll-margin-top:70px}
+.cover{display:grid;grid-template-columns:1fr 200px;gap:28px;align-items:center;background:var(--cs);padding:34px 38px;position:relative;border:2px solid var(--ink);outline:1px solid var(--ink);outline-offset:-9px;box-shadow:0 8px 20px rgba(80,52,20,.15)}
+.cover::after{content:"";position:absolute;inset:14px;border:6px dashed var(--ink);opacity:.12;pointer-events:none}
+.cover > *{min-width:0;position:relative}
+.cover .num{font:15px var(--f-caps);color:var(--c);letter-spacing:.08em}
+.cover .num em{font-family:var(--f-display);font-style:italic;letter-spacing:0}
+.cover h2{font-size:clamp(30px,4.6vw,46px);margin-top:10px}
+.cover .who{display:flex;align-items:center;gap:12px;margin-top:18px;font:italic 17px var(--f-body);color:var(--muted)}
+.cover .who b{color:var(--ink);font-style:normal;font-weight:600}
+.cover .who .avatar{width:46px;height:46px;font-size:15px}
+.cover svg{width:100%;max-width:200px}
+@media (max-width:720px){.cover{grid-template-columns:1fr;padding:28px 24px}.cover svg{max-width:130px}}
+.scene{font-size:21px;line-height:1.65;max-width:62ch}
+.scene::first-letter{font-family:var(--f-display);float:left;font-size:4.4em;line-height:.8;padding:8px 10px 0 0;color:var(--c)}
+
+.part{display:flex;flex-direction:column;gap:18px}
+.part-h{display:flex;gap:14px;align-items:baseline;padding-bottom:10px;border-bottom:1px solid var(--ink);box-shadow:0 3px 0 -2px var(--ink)}
+.part-h .n{font:20px var(--f-display);color:var(--paper-hi);background:var(--c);width:34px;height:34px;border-radius:50%;display:grid;place-items:center;flex:none;box-shadow:0 0 0 3px var(--paper),0 0 0 4px var(--c)}
+.part-h h3{font-size:28px}
+
+.benefits{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.benefit{min-width:0;padding:20px;border:1px solid var(--line);display:flex;flex-direction:column;gap:10px;background:rgba(255,248,228,.55);box-shadow:3px 3px 0 var(--paper-lo)}
+.benefit .ic{width:42px;height:42px;border-radius:50%;border:2px solid var(--c);display:grid;place-items:center}
+.benefit .ic svg{width:22px;height:22px}
+.benefit h4{font:20px var(--f-caps);color:var(--c);letter-spacing:.03em}
+.benefit p{font-size:17.5px;line-height:1.6}
+.ex{font-size:16.5px;line-height:1.55;border-left:3px solid var(--c);background:var(--cs);padding:10px 12px}
+.ex b{font:12px var(--f-type);letter-spacing:.04em;color:var(--c);display:block;margin-bottom:3px;font-weight:400}
+@media (max-width:820px){.benefits{grid-template-columns:1fr}}
+
+.lead{list-style:none;margin:0;padding:0;counter-reset:l;display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.lead li:last-child:nth-child(odd){grid-column:1/-1}
+.lead li{counter-increment:l;min-width:0;display:grid;grid-template-columns:auto 1fr;gap:16px;padding:18px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(255,248,228,.35)}
+.lead li::before{content:counter(l,upper-roman);font:34px/1 var(--f-display);color:var(--c);min-width:34px}
+.lead b{font:600 18px/1.3 var(--f-body);display:block;margin-bottom:4px}
+.lead p{font-size:17.5px;line-height:1.6}
+.lead .ex{margin-top:8px}
+@media (max-width:720px){.lead{grid-template-columns:1fr}}
+
+.pull{margin:8px 0;padding:22px 26px;font:italic clamp(23px,3vw,29px)/1.35 var(--f-display);max-width:42ch;position:relative;border:1px solid var(--line);background:rgba(255,248,228,.5)}
+.pull::before{content:"❦";position:absolute;top:-16px;left:22px;background:var(--paper);padding:0 8px;color:var(--c);font-style:normal;font-size:24px;line-height:1}
+.pull cite{display:block;font:normal 13px var(--f-type);color:var(--muted);margin-top:10px}
+
+.cases{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.case{min-width:0;border:1px solid var(--ink);outline:1px solid var(--line);outline-offset:3px;padding:18px;display:flex;flex-direction:column;gap:8px;background:rgba(255,248,228,.5)}
+.case:last-child:nth-child(odd){grid-column:1/-1}
+.case .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.case h4{font-size:21px;line-height:1.25}
+.pill{font:12px var(--f-type);padding:3px 9px;border:1.5px solid var(--c);color:var(--c);border-radius:3px;white-space:nowrap;transform:rotate(-1.5deg);display:inline-block;background:var(--paper-hi)}
+.pill.ext{border-color:var(--gold);color:#7a5418}
+.case p{font-size:17.5px;line-height:1.6}
+.case .fig{font:38px/1 var(--f-display);color:var(--c);font-variant-numeric:tabular-nums}
+@media (max-width:720px){.cases{grid-template-columns:1fr}}
+
+.takeaway{display:flex;gap:18px;align-items:center;padding:22px 24px;background:var(--ink);color:var(--paper-hi);position:relative}
+.takeaway::before{content:"";flex:none;width:54px;height:54px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#b8463a,var(--seal) 60%,#5e1a12);box-shadow:0 0 0 4px rgba(143,42,31,.35)}
+.takeaway .eyebrow{color:#d9b26a}
+.takeaway p{font-size:19px;line-height:1.55;margin-top:4px;font-style:italic}
+
+/* Herramientas */
+.tool{border:2px solid var(--c);outline:1px dashed var(--c);outline-offset:4px;padding:22px;display:flex;flex-direction:column;gap:14px;background:var(--paper-hi);margin:6px}
+.tool .row{display:flex;flex-wrap:wrap;gap:18px 28px;align-items:center}
+.tool label{font:15px var(--f-body);color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.tool input[type=range]{width:240px;max-width:100%;accent-color:var(--c)}
+.tool output{font:46px/1 var(--f-display);color:var(--c);font-variant-numeric:tabular-nums}
+.bar{height:12px;border:1px solid var(--c);background:var(--paper);overflow:hidden}
+.bar span{display:block;height:100%;background:repeating-linear-gradient(45deg,var(--c) 0 6px,transparent 6px 9px);transition:width .2s}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{font:16px var(--f-caps);padding:6px 13px;border-radius:3px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--c);color:var(--paper-hi);border-color:var(--c)}
+.tool .answer{font-size:18px;line-height:1.6;min-height:3.2em}
+.formula{font:13px var(--f-type);color:var(--muted)}
+
+/* ---------- Aportes y cierre ---------- */
+.block{display:flex;flex-direction:column;gap:18px;border-top:1px solid var(--line);padding-top:40px}
+.block > h2{font-size:clamp(32px,4.4vw,44px)}
+.tablewrap{overflow-x:auto;border:2px solid var(--ink);outline:1px solid var(--ink);outline-offset:-6px;background:rgba(255,248,228,.55)}
+table{border-collapse:collapse;width:100%;min-width:680px;font:17px/1.5 var(--f-body)}
+th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:16px var(--f-caps);letter-spacing:.04em}
+tr:last-child td{border-bottom:0}
+.quiz{--c:var(--ink);--cs:var(--paper-lo)}
+.quiz .q{display:flex;flex-direction:column;gap:8px}
+.quiz .q p{font:italic 18px var(--f-body)}
+.result{display:none;gap:14px;align-items:center;padding:16px;border:1px dashed var(--ink);background:var(--rs,var(--paper))}
+.result.on{display:flex}
+.result b{font-family:var(--f-display);font-weight:400;font-size:24px;display:block}
+.links{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.links a{min-width:0;display:flex;gap:14px;align-items:center;padding:12px 14px;border:1px solid var(--line);text-decoration:none;color:var(--ink);background:rgba(255,248,228,.5)}
+.links a:hover{border-color:var(--ink)}
+.links .src{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font:12px var(--f-type);color:var(--c);border:2px solid var(--c);transform:rotate(-8deg)}
+.links a b{display:block;font:600 16.5px/1.3 var(--f-body)}
+.links a small{font:12.5px var(--f-type);color:var(--muted)}
+@media (max-width:620px){.links{grid-template-columns:1fr}}
+.refs{font-size:17px;line-height:1.55;display:flex;flex-direction:column;gap:10px;padding-left:2em;text-indent:-2em}
+.refs p{overflow-wrap:anywhere}
+footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font:15px var(--f-caps);color:var(--muted);border-top:1px solid var(--ink);box-shadow:0 -3px 0 -2px var(--ink);padding-top:18px}
+.post[hidden]{display:none!important}
+.map .pin{cursor:pointer}
+@media (prefers-reduced-motion:no-preference){
+  .map .pin path{animation:bob 2.6s ease-in-out infinite}
+  .map .pin:nth-child(2) path{animation-delay:.5s}.map .pin:nth-child(3) path{animation-delay:1s}
+  .map .pin:nth-child(4) path{animation-delay:1.5s}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+  article.post.flash .cover{animation:flash 1.8s ease-out}
+  @keyframes flash{0%{box-shadow:0 0 0 0 rgba(143,42,31,.7)}100%{box-shadow:0 0 0 22px rgba(143,42,31,0)}}
+}
+.map .pin:hover circle,.map .pin:focus-visible circle{fill:#fff3d6;stroke:var(--seal);stroke-width:2}
+.map .legend{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 18px;margin-top:10px;font:15px var(--f-body);color:var(--muted)}
+.map .legend button{font:15px var(--f-caps);background:none;border:0;border-bottom:1px dashed var(--c);color:var(--c);cursor:pointer;padding:2px 0}
+
+html,body{margin:0}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<!-- ================= PORTADA ================= -->
+<header class="hero">
+  <p class="tag">Bitácora de expedición · Formación Empresarial · Grupo 1SF241</p>
+  <h1><em class="w1">El Reloj,</em> <em class="w2">la Espada</em><br><em class="w3">y el Mundo</em></h1>
+  <div class="orn" aria-hidden="true">✦ ❦ ✦</div>
+  <p class="lede">Carta de navegación de cuatro estudiantes de Ingeniería de Software por tres libros: uno sobre el tiempo, otro sobre la estrategia y otro sobre la ambición de construir un futuro.</p>
+  <p class="meta"><span>Universidad Tecnológica de Panamá</span><span>Facilitadora: Dra. Josefina Camargo</span><span>Año MMXXVI</span></p>
+
+  <figure class="map">
+    <svg viewBox="0 0 900 540" role="img" aria-labelledby="map-t">
+      <title id="map-t">Mapa antiguo con tres territorios: Torre del Reloj, Campamento de la Espada y Puerto del Mundo. Toca uno para ir a sus expediciones.</title>
+      <defs>
+        <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="2" seed="4"/><feDisplacementMap in="SourceGraphic" scale="7"/></filter>
+        <pattern id="waves" width="60" height="30" patternUnits="userSpaceOnUse"><path d="M4 18 q6 -6 12 0 t12 0" fill="none" stroke="#a89d72" stroke-width="1.4"/></pattern>
+        <radialGradient id="age" cx="50%" cy="45%" r="70%"><stop offset="55%" stop-color="#000" stop-opacity="0"/><stop offset="100%" stop-color="#6b4a20" stop-opacity=".28"/></radialGradient>
+      </defs>
+      <!-- mar -->
+      <rect x="0" y="0" width="900" height="540" fill="#f3e6c8"/>
+      <rect x="24" y="24" width="852" height="492" fill="var(--sea)"/>
+      <rect x="24" y="24" width="852" height="492" fill="url(#waves)" opacity=".7"/>
+      <!-- rumbos -->
+      <g stroke="#8a6a3f" stroke-width=".8" opacity=".35">
+        <path d="M800 108 L24 300 M800 108 L24 60 M800 108 L300 516 M800 108 L640 516 M800 108 L876 400 M800 108 L520 24"/>
+      </g>
+      <!-- territorios -->
+      <g>
+        <a class="zone" href="#madrid" data-go="madrid" aria-label="Torre del Reloj: 7 ladrones del tiempo">
+          <path d="M92 210 C100 146 172 104 244 112 C306 120 344 164 334 226 C326 276 356 324 314 374 C272 424 182 436 130 394 C80 354 72 268 92 210 Z" fill="none" stroke="var(--sea2)" stroke-width="16" filter="url(#rough)"/>
+          <path class="land" filter="url(#rough)" d="M92 210 C100 146 172 104 244 112 C306 120 344 164 334 226 C326 276 356 324 314 374 C272 424 182 436 130 394 C80 354 72 268 92 210 Z" fill="var(--paper)" stroke="var(--ink)" stroke-width="2.5"/>
+          <path d="M112 300 q20 -14 40 0 M250 330 q18 -12 36 0 M140 180 q16 -10 32 0" stroke="#8a6a3f" stroke-width="1.5" fill="none"/>
+          <!-- torre -->
+          <path d="M186 176 L208 148 L230 176 Z" fill="var(--b1)" stroke="var(--ink)" stroke-width="2"/>
+          <rect x="190" y="176" width="36" height="84" fill="var(--paper-hi)" stroke="var(--ink)" stroke-width="2"/>
+          <circle cx="208" cy="200" r="12" fill="#fff8e6" stroke="var(--b1)" stroke-width="2.5"/>
+          <path d="M208 192v8l6 4" stroke="var(--b1)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path d="M200 260v-22h16v22" fill="var(--b1)" opacity=".6"/>
+          <rect x="178" y="258" width="60" height="8" fill="var(--ink)"/>
+          <text class="lbl" x="208" y="300" text-anchor="middle" font-family="IM Fell English SC, Georgia, serif" font-size="22" fill="var(--b1)">Torre del Reloj</text>
+          <text x="208" y="322" text-anchor="middle" font-family="IM Fell English, Georgia, serif" font-style="italic" font-size="15" fill="var(--muted)">Pena · Madrid y Camaño</text>
+        </a>
+        <a class="zone" href="#gonzalez" data-go="gonzalez" aria-label="Campamento de la Espada: El arte de la guerra">
+          <path d="M384 116 C414 72 504 62 566 92 C618 118 608 176 586 216 C566 256 606 284 564 306 C512 328 452 296 420 264 C380 228 352 154 384 116 Z" fill="none" stroke="var(--sea2)" stroke-width="16" filter="url(#rough)"/>
+          <path class="land" filter="url(#rough)" d="M384 116 C414 72 504 62 566 92 C618 118 608 176 586 216 C566 256 606 284 564 306 C512 328 452 296 420 264 C380 228 352 154 384 116 Z" fill="var(--paper)" stroke="var(--ink)" stroke-width="2.5"/>
+          <path d="M410 140 l14 -18 l14 18 M540 250 l12 -16 l12 16 M520 120 l10 -12 l10 12" stroke="#8a6a3f" stroke-width="1.5" fill="none"/>
+          <!-- tienda y espadas -->
+          <path d="M444 204 L478 150 L512 204 Z" fill="var(--b2s)" stroke="var(--ink)" stroke-width="2"/>
+          <path d="M478 150 L478 204 M470 204 L478 186 L486 204" stroke="var(--ink)" stroke-width="2" fill="none"/>
+          <path d="M478 150 V124 h18 l-5 6 5 6 h-18" fill="var(--b2)" stroke="var(--ink)" stroke-width="1.5"/>
+          <path d="M524 132 L566 190 M566 132 L524 190" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+          <path d="M518 180 l14 -4 M572 180 l-14 -4" stroke="var(--b2)" stroke-width="5" stroke-linecap="round"/>
+          <text class="lbl" x="490" y="236" text-anchor="middle" font-family="IM Fell English SC, Georgia, serif" font-size="22" fill="var(--b2)">Campamento de la Espada</text>
+          <text x="490" y="258" text-anchor="middle" font-family="IM Fell English, Georgia, serif" font-style="italic" font-size="15" fill="var(--muted)">Sun Tzu · González y Camaño</text>
+        </a>
+        <a class="zone" href="#hooker" data-go="hooker" aria-label="Puerto del Mundo: El mundo es tuyo pero tienes que ganártelo">
+          <path d="M604 344 C624 292 704 272 764 292 C824 312 852 362 832 412 C812 462 742 482 682 472 C622 462 584 392 604 344 Z" fill="none" stroke="var(--sea2)" stroke-width="16" filter="url(#rough)"/>
+          <path class="land" filter="url(#rough)" d="M604 344 C624 292 704 272 764 292 C824 312 852 362 832 412 C812 462 742 482 682 472 C622 462 584 392 604 344 Z" fill="var(--paper)" stroke="var(--ink)" stroke-width="2.5"/>
+          <!-- globo y faro -->
+          <circle cx="680" cy="356" r="26" fill="var(--b3s)" stroke="var(--b3)" stroke-width="2.5"/>
+          <ellipse cx="680" cy="356" rx="11" ry="26" fill="none" stroke="var(--b3)" stroke-width="2"/>
+          <path d="M654 356h52M659 342h42M659 370h42" stroke="var(--b3)" stroke-width="1.6"/>
+          <path d="M760 384 L766 328 L778 328 L784 384 Z" fill="var(--paper-hi)" stroke="var(--ink)" stroke-width="2"/>
+          <rect x="762" y="316" width="20" height="12" fill="var(--gold)" stroke="var(--ink)" stroke-width="2"/>
+          <path d="M752 312 l-26 -10 M792 312 l26 -10" stroke="var(--gold)" stroke-width="2"/>
+          <text class="lbl" x="718" y="420" text-anchor="middle" font-family="IM Fell English SC, Georgia, serif" font-size="22" fill="var(--b3)">Puerto del Mundo</text>
+          <text x="718" y="442" text-anchor="middle" font-family="IM Fell English, Georgia, serif" font-style="italic" font-size="15" fill="var(--muted)">Kim Woo-Choong · Hooker</text>
+        </a>
+      </g>
+      <!-- islotes -->
+      <g fill="var(--paper)" stroke="var(--ink)" stroke-width="1.8" filter="url(#rough)">
+        <ellipse cx="380" cy="360" rx="16" ry="9"/><ellipse cx="410" cy="384" rx="9" ry="6"/><ellipse cx="640" cy="160" rx="14" ry="8"/>
+      </g>
+      <!-- ruta -->
+      <path class="route" d="M232 226 C300 120 370 110 440 170 M548 230 C600 300 610 320 652 344" fill="none" stroke="var(--seal)" stroke-width="3.5" stroke-dasharray="2 11" stroke-linecap="round"/>
+      <path d="M334 236 C360 280 380 300 420 300" fill="none" stroke="var(--seal)" stroke-width="2" stroke-dasharray="2 9" stroke-linecap="round" opacity=".55"/>
+      <g stroke="var(--seal)" stroke-width="4" stroke-linecap="round"><path d="M810 436 l16 16 M826 436 l-16 16"/></g>
+      <g class="pins"><a class="pin" href="#madrid" data-go="madrid" aria-label="Ir a la expedición de Madrid, María · 7 ladrones del tiempo"><title>Madrid, María · 7 ladrones del tiempo</title><g transform="translate(132 232)"><ellipse cy="2" rx="9" ry="3" fill="#3a2816" opacity=".3"/><path d="M0 0 C-17 -18 -17 -42 0 -42 C17 -42 17 -18 0 0Z" fill="var(--b1)" stroke="var(--ink)" stroke-width="2"/><circle cy="-27" r="11" fill="var(--paper-hi)"/><text y="-23" text-anchor="middle" font-family="IM Fell English SC, Georgia, serif" font-size="12" fill="var(--ink)">MM</text></g></a><a class="pin" href="#gonzalez" data-go="gonzalez" aria-label="Ir a la expedición de González, Emanuel · El arte de la guerra"><title>González, Emanuel · El arte de la guerra</title><g transform="translate(420 176)"><ellipse cy="2" rx="9" ry="3" fill="#3a2816" opacity=".3"/><path d="M0 0 C-17 -18 -17 -42 0 -42 C17 -42 17 -18 0 0Z" fill="var(--b2)" stroke="var(--ink)" stroke-width="2"/><circle cy="-27" r="11" fill="var(--paper-hi)"/><text y="-23" text-anchor="middle" font-family="IM Fell English SC, Georgia, serif" font-size="12" fill="var(--ink)">EG</text></g></a><a class="pin" href="#camano" data-go="camano" aria-label="Ir a la expedición de Camaño, Edward · El arte de la guerra"><title>Camaño, Edward · El arte de la guerra</title><g transform="translate(574 290)"><ellipse cy="2" rx="9" ry="3" fill="#3a2816" opacity=".3"/><path d="M0 0 C-17 -18 -17 -42 0 -42 C17 -42 17 -18 0 0Z" fill="var(--b2)" stroke="var(--ink)" stroke-width="2"/><circle cy="-27" r="11" fill="var(--paper-hi)"/><text y="-23" text-anchor="middle" font-family="IM Fell English SC, Georgia, serif" font-size="12" fill="var(--ink)">EC</text></g></a><a class="pin" href="#hooker" data-go="hooker" aria-label="Ir a la expedición de Hooker, Gonzalo · El mundo es tuyo"><title>Hooker, Gonzalo · El mundo es tuyo</title><g transform="translate(640 440)"><ellipse cy="2" rx="9" ry="3" fill="#3a2816" opacity=".3"/><path d="M0 0 C-17 -18 -17 -42 0 -42 C17 -42 17 -18 0 0Z" fill="var(--b3)" stroke="var(--ink)" stroke-width="2"/><circle cy="-27" r="11" fill="var(--paper-hi)"/><text y="-23" text-anchor="middle" font-family="IM Fell English SC, Georgia, serif" font-size="12" fill="var(--ink)">GH</text></g></a></g>
+      <!-- barco -->
+      <g transform="translate(430 440)" stroke="var(--ink)" stroke-width="2">
+        <path d="M-34 0 H34 L24 16 H-24 Z" fill="#8a6a3f"/>
+        <path d="M0 0 V-44" /><path d="M2 -42 C22 -32 22 -14 2 -6 Z" fill="var(--paper-hi)"/><path d="M-2 -36 C-18 -28 -18 -14 -2 -8 Z" fill="var(--paper-hi)"/>
+        <path d="M0 -44 h12 l-4 4 4 4 h-12" fill="var(--seal)" stroke-width="1.2"/>
+      </g>
+      <!-- leyendas del mar -->
+      <text x="120" y="80" font-family="IM Fell English, Georgia, serif" font-style="italic" font-size="20" fill="#6c5233" letter-spacing="3">Océano del Tiempo</text>
+      <text x="236" y="490" font-family="IM Fell English, Georgia, serif" font-style="italic" font-size="20" fill="#6c5233" letter-spacing="3">Mar de las Decisiones</text>
+      <text x="588" y="236" font-family="IM Fell English, Georgia, serif" font-style="italic" font-size="16" fill="#6c5233" letter-spacing="2" transform="rotate(28 588 236)">Estrecho del Liderazgo</text>
+      <!-- rosa de los vientos -->
+      <g transform="translate(800 108)">
+        <circle r="56" fill="var(--paper-hi)" stroke="var(--ink)" stroke-width="1.5"/>
+        <circle r="48" fill="none" stroke="var(--ink)" stroke-width=".8" stroke-dasharray="3 3"/>
+        <g class="needle">
+          <path d="M0 -50 L8 0 L0 50 L-8 0 Z" fill="var(--ink)"/>
+          <path d="M-50 0 L0 -8 L50 0 L0 8 Z" fill="var(--ink)" opacity=".75"/>
+          <path d="M0 -50 L8 0 L0 0 Z" fill="var(--seal)"/>
+          <path d="M-30 -30 L4 -4 L30 30 L-4 4 Z" fill="var(--gold)" opacity=".8"/>
+          <path d="M30 -30 L4 4 L-30 30 L-4 -4 Z" fill="var(--gold)" opacity=".8"/>
+        </g>
+        <circle r="5" fill="var(--paper-hi)" stroke="var(--ink)" stroke-width="1.5"/>
+        <text y="-62" text-anchor="middle" font-family="IM Fell English SC, Georgia, serif" font-size="16" fill="var(--ink)">N</text>
+      </g>
+      <!-- escala -->
+      <g transform="translate(60 470)" font-family="Special Elite, monospace" font-size="11" fill="var(--ink)">
+        <rect width="40" height="6" fill="var(--ink)"/><rect x="40" width="40" height="6" fill="var(--paper)" stroke="var(--ink)"/><rect x="80" width="40" height="6" fill="var(--ink)"/>
+        <text y="22">0</text><text x="104" y="22">3 libros</text>
+      </g>
+      <!-- marco -->
+      <rect x="24" y="24" width="852" height="492" fill="url(#age)"/>
+      <rect x="10" y="10" width="880" height="520" fill="none" stroke="var(--ink)" stroke-width="2"/>
+      <rect x="17" y="17" width="866" height="506" fill="none" stroke="var(--ink)" stroke-width="6" stroke-dasharray="24 24"/>
+      <rect x="24" y="24" width="852" height="492" fill="none" stroke="var(--ink)" stroke-width="1.5"/>
+    </svg>
+    <figcaption>Toca un territorio o un marcador del mapa para viajar a esa expedición.</figcaption>
+    <div class="legend"><span>Expediciones:</span><button type="button" data-go="madrid" style="--c:var(--b1)">I · Madrid</button><button type="button" data-go="gonzalez" style="--c:var(--b2)">II · González</button><button type="button" data-go="camano" style="--c:var(--b2)">III · Camaño</button><button type="button" data-go="hooker" style="--c:var(--b3)">IV · Hooker</button></div>
+  </figure>
+</header>
+
+
+<!-- ================= INTRODUCCIÓN ================= -->
+<section class="intro" aria-labelledby="intro-t">
+  <div><p class="eyebrow">Introducción · Carta del cartógrafo</p><h2 id="intro-t">Por qué un reloj, una espada y un mundo</h2></div>
+  <div class="prose">
+    <p class="dropcap">Cuando la profesora nos pidió leer un libro de formación empresarial, cada uno eligió el suyo. Al juntar los trabajos nos dimos cuenta de que, sin planearlo, habíamos leído tres maneras de mirar el liderazgo. Alberto Pena nos habla del <strong>reloj</strong>: los malos hábitos que nos roban el tiempo sin que lo notemos. Sun Tzu nos entrega la <strong>espada</strong>: el arte de competir pensando antes de actuar. Y Kim Woo-Choong, fundador de Daewoo, nos muestra el <strong>mundo</strong>: un lugar que es nuestro, pero que hay que ganarse con esfuerzo.</p>
+    <p>Somos cuatro integrantes. María leyó <em>7 ladrones del tiempo</em>, Emanuel leyó <em>El arte de la guerra</em>, Edward leyó los dos y los comparó, y Gonzalo leyó <em>El mundo es tuyo pero tienes que ganártelo</em>. Aunque algunos compartimos libro, cada entrada cuenta una historia distinta y responde a las mismas cuatro preguntas: qué nos dejó la lectura en lo personal, lo familiar y lo profesional; qué cinco ideas consideramos esenciales para liderar; cómo fortalece al recurso humano; y qué cinco aspectos ayudan a crecer a una organización.</p>
+    <p>Usamos ejemplos de empresas panameñas y extranjeras, y agregamos herramientas interactivas para que el lector pruebe las ideas por sí mismo.</p>
+    <div class="timeline" aria-label="Ruta de las lecturas">
+      <div class="tl" style="--c:var(--b2)"><div class="dot"></div><span class="yr">China antigua</span><b>El arte de la guerra</b><small>Sun Tzu · edición de 2003</small></div>
+      <div class="tl" style="--c:var(--b3)"><div class="dot"></div><span class="yr">1989 · Corea del Sur</span><b>El mundo es tuyo pero tienes que ganártelo</b><small>Kim Woo-Choong</small></div>
+      <div class="tl" style="--c:var(--b1)"><div class="dot"></div><span class="yr">2010 · España</span><b>7 ladrones del tiempo</b><small>Alberto Pena · Club EresProductivo</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ÍNDICE ================= -->
+<section class="index" aria-labelledby="idx-t">
+  <p class="eyebrow">Registro de expedicionarios</p>
+  <h2 id="idx-t">Cuatro viajeros, cuatro expediciones</h2>
+  <div class="authors">
+    <a class="author" href="#madrid" data-go="madrid" style="--c:var(--b1);--cs:var(--b1s)"><div class="avatar">MM</div><span class="bk">Torre del Reloj</span><b>Madrid, María</b><span>El enemigo no es la pantalla</span></a>
+    <a class="author" href="#gonzalez" data-go="gonzalez" style="--c:var(--b2);--cs:var(--b2s)"><div class="avatar">EG</div><span class="bk">Campamento de la Espada</span><b>González, Emanuel</b><span>Vencer sin combatir</span></a>
+    <a class="author" href="#camano" data-go="camano" style="--c:var(--b2);--cs:var(--b2s)"><div class="avatar">EC</div><span class="bk">Espada y Reloj</span><b>Camaño, Edward</b><span>Estrategia y dominio propio</span></a>
+    <a class="author" href="#hooker" data-go="hooker" style="--c:var(--b3);--cs:var(--b3s)"><div class="avatar">GH</div><span class="bk">Puerto del Mundo</span><b>Hooker, Gonzalo</b><span>Soñar en grande</span></a>
+  </div>
+</section>
+
+<nav class="filter" aria-label="Filtrar entradas por libro">
+  <button type="button" id="f-all" data-f="all" aria-pressed="true">Todo el mapa</button>
+  <button type="button" id="f-b1" data-f="b1" aria-pressed="false"><i style="background:var(--b1)"></i>Torre del Reloj</button>
+  <button type="button" id="f-b2" data-f="b2" aria-pressed="false"><i style="background:var(--b2)"></i>Campamento de la Espada</button>
+  <button type="button" id="f-b3" data-f="b3" aria-pressed="false"><i style="background:var(--b3)"></i>Puerto del Mundo</button>
+</nav>
+
+<!-- ================================================= -->
+<!-- ENTRADA 1 · MARÍA MADRID                          -->
+<!-- ================================================= -->
+<article class="post" id="madrid" data-book="b1" style="--c:var(--b1);--cs:var(--b1s)">
+  <div class="cover">
+    <div>
+      <p class="num">Expedición I · Torre del Reloj · <em>7 ladrones del tiempo</em></p>
+      <h2>El enemigo no es la pantalla, es usarla sin intención</h2>
+      <div class="who"><div class="avatar">MM</div><span>Bitácora de <b>Madrid, María</b> · Lectura de 8 min</span></div>
+    </div>
+    <svg viewBox="0 0 220 220" aria-hidden="true"><rect x="58" y="14" width="104" height="192" rx="18" fill="var(--paper-hi)" stroke="var(--b1)" stroke-width="6"/><rect x="92" y="26" width="36" height="6" rx="3" fill="var(--b1)"/><circle cx="110" cy="108" r="40" fill="var(--b1s)" stroke="var(--b1)" stroke-width="5"/><path d="M110 84v24l16 10" stroke="var(--b1)" stroke-width="6" fill="none" stroke-linecap="round"/><circle cx="150" cy="38" r="16" fill="var(--b2)"/><text x="150" y="44" text-anchor="middle" font-family="IM Fell English, Georgia, serif" font-size="16" fill="var(--paper-hi)">27</text><rect x="78" y="166" width="64" height="10" rx="5" fill="var(--b1s)"/></svg>
+  </div>
+
+  <p class="scene">Son las nueve de la noche y me siento a terminar un informe. "Solo reviso un mensaje", pienso. Cuarenta minutos después sigo pasando videos, con el documento abierto en la misma línea. Esa escena, que seguro le pasa a cualquiera, es la que Alberto Pena describe en su guía. Su idea central me incomodó porque desmonta la excusa más común: no nos falta tiempo, nos falta gestionarnos. Todos tenemos las mismas 24 horas; lo que cambia son los hábitos que nos alejan de lo que de verdad queremos lograr.</p>
+
+  <section class="part">
+    <div class="part-h"><span class="n">1</span><h3>Beneficios que encontré en mi crecimiento</h3></div>
+    <div class="benefits">
+      <div class="benefit">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="var(--b1)" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg></div>
+        <h4>Personal</h4>
+        <p>Pena escribió sobre el zapping de la televisión. Hoy ese zapping es el desplazamiento infinito del teléfono. Aprendí su primer paso: medir antes de cambiar. Cuando vi mi tiempo de pantalla real, entendí por qué el día no me alcanzaba.</p>
+        <p class="ex"><b>Ejemplo</b>Activé el reporte semanal de uso del celular y puse un límite de 45 minutos a redes sociales entre semana.</p>
+      </div>
+      <div class="benefit">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="var(--b1)" stroke-width="2"><path d="M3 11l9-7 9 7v9H3z"/><path d="M9 20v-6h6v6"/></svg></div>
+        <h4>Familiar</h4>
+        <p>Una de sus técnicas es sencilla: cenar sin televisión. La llevé al celular. La mesa de la casa volvió a ser un lugar para conversar y no para mirar pantallas, y el descanso dejó de interrumpirse por mensajes que podían esperar.</p>
+        <p class="ex"><b>Ejemplo</b>En casa acordamos dejar los teléfonos en una canasta durante la cena.</p>
+      </div>
+      <div class="benefit">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="var(--b1)" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div>
+        <h4>Profesional</h4>
+        <p>Dejé de abrir el correo a primera hora. Ahora lo proceso en momentos fijos, apago notificaciones cuando hago una tarea clave y trabajo en bloques de 15 a 25 minutos cuando sé que habrá interrupciones.</p>
+        <p class="ex"><b>Ejemplo</b>Reviso correo y chats del grupo a las 10:00, 13:00 y 17:00, no cada vez que suena el teléfono.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="part">
+    <div class="part-h"><span class="n">2</span><h3>Cinco puntos esenciales para el liderazgo</h3></div>
+    <ol class="lead">
+      <li><div><b>No ser el interruptor de los demás</b><p>Es el consejo que más valoro de la guía, porque reconoce que la productividad es colectiva. Un líder que llama o escribe por cualquier detalle fragmenta la jornada de todo el equipo.</p><p class="ex"><b>En la práctica</b>Juntar las dudas menores en un solo mensaje en vez de enviar cinco a lo largo del día.</p></div></li>
+      <li><div><b>Reuniones con objetivo, tiempo y acta</b><p>Pena identifica cinco causas del fracaso de las reuniones: material sin preparar, objetivos difusos, roles poco claros, duración excesiva y ninguna acción concreta al final.</p><p class="ex"><b>En la práctica</b>Máximo 30 minutos, agenda enviada el día antes y tres compromisos escritos al cerrar.</p></div></li>
+      <li><div><b>Comunicar las rutinas con transparencia</b><p>La guía sugiere decir que uno está "reunido" para evitar llamadas. Prefiero la honestidad: avisar que estoy en un bloque de concentración y cuándo estaré disponible.</p></div></li>
+      <li><div><b>Distinguir lo importante de lo urgente</b><p>No todo mensaje exige respuesta inmediata. El líder enseña con su ejemplo qué puede esperar y qué no.</p></div></li>
+      <li><div><b>Respetar la desconexión del equipo</b><p>De poco sirve que un colaborador silencie su teléfono si su jefe espera una respuesta a las once de la noche. Respetar el descanso es una decisión de liderazgo.</p></div></li>
+    </ol>
+  </section>
+
+  <section class="part">
+    <div class="part-h"><span class="n">3</span><h3>Cómo fortalece el recurso humano</h3></div>
+    <div class="prose">
+      <p>Pena no habla solo de eficiencia. Dice que las interrupciones generan estrés, ansiedad, desgaste de la motivación y hasta una autoestima debilitada, porque impiden terminar las tareas y sentirse bien con lo logrado. Visto así, gestionar el tiempo es también cuidar la salud de las personas.</p>
+      <p>En Panamá este tema ya pasó del consejo personal a la política laboral. Se presentó un anteproyecto para incluir el derecho a la desconexión digital en el artículo 128 del Código de Trabajo, de modo que los empleadores no exijan respuestas inmediatas fuera de la jornada, salvo emergencias. En el sector privado, el estudio <em>Reinventando los Beneficios 2022</em> de Mercer Marsh encontró que 8 de cada 10 empresas encuestadas en la región ya respetaban las horas de descanso de sus colaboradores.</p>
+      <p>La lección para recursos humanos es que bienestar y productividad no compiten. Una persona que descansa y puede concentrarse rinde más, se equivoca menos y tiene más razones para quedarse en la empresa.</p>
+    </div>
+    <p class="prose">La investigadora Gloria Mark, de la Universidad de California en Irvine, encontró que retomar una tarea interrumpida toma en promedio 23 minutos y 15 segundos. Cada notificación que parece inofensiva tiene un costo oculto. Prueba cuánto pierdes tú:</p>
+    <div class="tool" aria-labelledby="calc-t">
+      <p class="eyebrow" id="calc-t" style="color:var(--b1)">Herramienta interactiva · ¿Cuánto te cuestan las interrupciones?</p>
+      <div class="row">
+        <label for="c-int">Interrupciones al día: <b id="c-int-v">6</b><input type="range" id="c-int" min="1" max="20" value="6"></label>
+        <label for="c-min">Minutos para retomar: <b id="c-min-v">23</b><input type="range" id="c-min" min="5" max="30" value="23"></label>
+        <div><span class="eyebrow">Tiempo perdido por semana</span><br><output id="c-out" for="c-int c-min">11.5 h</output></div>
+      </div>
+      <div class="bar" aria-hidden="true"><span id="c-bar" style="width:29%"></span></div>
+      <p class="answer" id="c-note">Equivale al 29% de una semana laboral de 40 horas.</p>
+      <p class="formula">Fórmula: interrupciones × minutos de recuperación × 5 días. Pena estima hasta 10 minutos; Gloria Mark midió 23.</p>
+    </div>
+    <blockquote class="pull">"Las reuniones no son productivas ni improductivas, somos nosotros quienes las hacemos así."<cite>Alberto Pena (2010)</cite></blockquote>
+  </section>
+
+  <section class="part">
+    <div class="part-h"><span class="n">4</span><h3>Cinco aspectos que ayudan al crecimiento de las organizaciones</h3></div>
+    <div class="cases">
+      <div class="case"><div class="top"><h4>Recortar reuniones recurrentes</h4><span class="pill ext">Shopify · Canadá</span></div><span class="fig">76,500 h</span><p>A inicios de 2023 Shopify borró de los calendarios las reuniones recurrentes de varias personas y prohibió las reuniones los miércoles. Liberó más de 76,500 horas.</p></div>
+      <div class="case"><div class="top"><h4>Ordenar la cultura del correo</h4><span class="pill ext">Atos · Francia</span></div><span class="fig">20 h / semana</span><p>Los empleados de Atos dedicaban hasta 20 horas semanales al correo y solo cerca del 10% de los mensajes era útil. En 2011 la empresa anunció su política de cero correos internos.</p></div>
+      <div class="case"><div class="top"><h4>Planificar antes del imprevisto</h4><span class="pill">Panamá · 8°59′N 79°31′O</span></div><span class="fig">40% → 55%</span><p>Según Konzerta, el 55% de las empresas panameñas aplicó estrategias para sostener la productividad en las Fiestas Patrias de 2025, frente al 40% del año anterior.</p></div>
+      <div class="case"><div class="top"><h4>Tareas clave en las mejores horas</h4><span class="pill">Técnica de Pena</span></div><p>Dos o tres actividades de alto impacto al día, ubicadas en el momento de mayor energía. Lo repetitivo, como revisar el correo, en los ratos de baja exigencia.</p></div>
+      <div class="case"><div class="top"><h4>Unir el hábito personal con la política institucional</h4><span class="pill">Reflexión</span></div><p>Una política como la de Shopify crea el espacio, pero sin la disciplina individual que describe Pena, las reuniones y correos que sobrevivan seguirán siendo igual de improductivos.</p></div>
+    </div>
+  </section>
+
+  <div class="takeaway"><div><p class="eyebrow">Hallazgo de la expedición</p><p>Antes de abrir el correo, entrar a una reunión o desbloquear el celular, me pregunto: ¿esto me acerca a lo que quiero lograr hoy?</p></div></div>
+</article>
+
+<!-- ================================================= -->
+<!-- ENTRADA 3 · EMANUEL GONZÁLEZ                      -->
+<!-- ================================================= -->
+<article class="post" id="gonzalez" data-book="b2" style="--c:var(--b2);--cs:var(--b2s)">
+  <div class="cover">
+    <div>
+      <p class="num">Expedición II · Campamento de la Espada · <em>El arte de la guerra</em></p>
+      <h2>Vencer sin combatir: estrategia competitiva para empresas panameñas</h2>
+      <div class="who"><div class="avatar">EG</div><span>Bitácora de <b>González, Emanuel</b> · Lectura de 8 min</span></div>
+    </div>
+    <svg viewBox="0 0 220 220" aria-hidden="true"><path d="M20 160 C60 120 90 140 110 110 S170 60 200 70" fill="none" stroke="var(--b2)" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 14"/><circle cx="110" cy="110" r="30" fill="var(--paper-hi)" stroke="var(--b2)" stroke-width="6"/><path d="M110 92v36M92 110h36" stroke="var(--b2)" stroke-width="5"/><path d="M30 196h160" stroke="var(--b2)" stroke-width="5"/><path d="M190 30v40M190 30h-24l6 10-6 10h24" fill="var(--b2s)" stroke="var(--b2)" stroke-width="5" stroke-linejoin="round"/><circle cx="20" cy="160" r="9" fill="var(--gold)"/></svg>
+  </div>
+
+  <p class="scene">Cuando abrí <em>El arte de la guerra</em> esperaba un libro sobre batallas. Encontré otra cosa: Sun Tzu casi nunca habla de valentía o de fuerza bruta; habla de cálculo, de preparación y de conocimiento. Para él, la mejor victoria es la que se logra sin combatir. Pensé enseguida en Copa Airlines. Nunca intentó pelear de frente contra las grandes aerolíneas de Estados Unidos o Europa en sus propios mercados. Hizo algo más inteligente: usó la posición de Panamá para conectar ciudades del continente que no tenían vuelos directos entre sí. No le ganó a nadie atacando; ocupó un espacio que estaba vacío.</p>
+
+  <section class="part">
+    <div class="part-h"><span class="n">1</span><h3>Beneficios que encontré en mi crecimiento</h3></div>
+    <div class="benefits">
+      <div class="benefit">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="var(--b2)" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg></div>
+        <h4>Personal</h4>
+        <p>"Conocerse a sí mismo" dejó de ser una frase bonita. Hice mi propio FODA: mis fortalezas en redes y programación, mis debilidades como el inglés, las oportunidades en tecnología y las amenazas de un mercado cada vez más competitivo.</p>
+        <p class="ex"><b>Ejemplo</b>Ese análisis me ayudó a decidir en qué cursos y certificaciones invertir mi tiempo este año.</p>
+      </div>
+      <div class="benefit">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="var(--b2)" stroke-width="2"><path d="M3 11l9-7 9 7v9H3z"/><path d="M9 20v-6h6v6"/></svg></div>
+        <h4>Familiar</h4>
+        <p>La edición que leímos dice que la obra sirve para comprender las raíces de un conflicto y buscar una solución. En casa eso significa no querer ganar cada discusión, sino entender qué la provocó y encontrar un acuerdo.</p>
+        <p class="ex"><b>Ejemplo</b>Ante un desacuerdo, primero escucho y pregunto, luego propongo. Se discute menos y se resuelve más.</p>
+      </div>
+      <div class="benefit">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="var(--b2)" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div>
+        <h4>Profesional</h4>
+        <p>En nuestro emprendimiento de clase, VersaFlex, entendimos que no podíamos competir en precio ni en tamaño contra grandes plataformas internacionales. La estrategia correcta era elegir un terreno propio.</p>
+        <p class="ex"><b>Ejemplo</b>Nos enfocamos en pequeñas empresas locales que necesitan soluciones de software rápidas y adaptables.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="part">
+    <div class="part-h"><span class="n">2</span><h3>Cinco puntos esenciales para el liderazgo</h3></div>
+    <ol class="lead">
+      <li><div><b>Planificar antes de actuar</b><p>Para Sun Tzu la guerra es asunto de vida o muerte para el Estado, y por eso no admite improvisación. Una decisión estratégica también puede significar la quiebra de una empresa.</p></div></li>
+      <li><div><b>Construir una doctrina compartida</b><p>Cuando el equipo entiende y cree en la misión, sigue al líder con menos resistencia y ejecuta mejor.</p></div></li>
+      <li><div><b>Ubicar a cada persona según sus capacidades</b><p>El valiente lucha, el cuidadoso vigila y el inteligente analiza y comunica. Liderar es ver dónde aporta más cada uno.</p></div></li>
+      <li><div><b>Adaptarse como el agua</b><p>El agua no tiene forma fija y siempre encuentra el camino. Un líder no se aferra a un modelo solo porque funcionó en el pasado.</p><p class="ex"><b>En la práctica</b>Cuando aparecieron aerolíneas de bajo costo en la región, Copa creó Wingo en vez de bajar los precios de su marca principal.</p></div></li>
+      <li><div><b>Discreción en lugar de engaño</b><p>Sun Tzu dice que la guerra se basa en el engaño. En los negocios, mentir a clientes o socios es antiético. Lo rescatable es la discreción: no revelar los planes antes de tiempo y sorprender con innovación.</p></div></li>
+    </ol>
+    <blockquote class="pull">"Si conoces a los demás y te conoces a ti mismo, ni en cien batallas correrás peligro."<cite>Sun Tzu (2003), p. 10</cite></blockquote>
+  </section>
+
+  <section class="part">
+    <div class="part-h"><span class="n">3</span><h3>Cómo fortalece el recurso humano</h3></div>
+    <div class="prose">
+      <p>El primer factor que Sun Tzu manda evaluar antes de cualquier campaña es la doctrina: aquello que pone al pueblo en armonía con quien lo dirige. En una empresa eso se llama cultura organizacional. A eso suma el ímpetu, que nace del entusiasmo, la convicción, el orden y el compromiso de los soldados.</p>
+      <p>La estrategia más brillante no sirve sin las personas que la ejecutan. La reputación de puntualidad de Copa depende de la disciplina operativa de miles de colaboradores. En Estados Unidos, Southwest Airlines suele citarse como ejemplo de una cultura centrada en sus empleados que se volvió ventaja competitiva.</p>
+      <p>De la lectura saco tres tareas para recursos humanos: transmitir un propósito claro, asignar a cada persona donde aporta más y cuidar la moral del equipo. Un ejército agotado y desmotivado pierde aunque tenga mejores armas.</p>
+    </div>
+  </section>
+
+  <section class="part">
+    <div class="part-h"><span class="n">4</span><h3>Cinco aspectos que ayudan al crecimiento de las organizaciones</h3></div>
+    <div class="cases">
+      <div class="case"><div class="top"><h4>Diferenciarse en vez de pelear de frente</h4><span class="pill">Tocumen · 9°04′N 79°23′O</span></div><p>El Hub de las Américas en Tocumen conecta Norte, Centro y Sudamérica y el Caribe. Copa ganó ocupando un espacio vacío. Algo parecido hizo Apple con el iPhone en 2007: no peleó la guerra de los teléfonos con teclado, redefinió la categoría.</p></div>
+      <div class="case"><div class="top"><h4>Llegar primero al campo de batalla</h4><span class="pill">Canal · 9°04′N 79°41′O</span></div><span class="fig">2016</span><p>Ante buques cada vez más grandes, Panamá construyó un tercer juego de esclusas para recibir los neopanamax. Las sequías recientes en el lago Gatún recuerdan que hasta la organización más fuerte depende del terreno y del clima.</p></div>
+      <div class="case"><div class="top"><h4>Evitar las campañas largas</h4><span class="pill">Ciudad de Panamá · 8°59′N 79°31′O</span></div><p>Super 99, Riba Smith, El Machetazo o El Rey compiten junto a PriceSmart. Si todos pelearan solo por precio, todos se desgastarían. Por eso se diferencian por variedad, ubicación, precios populares o programas de lealtad.</p></div>
+      <div class="case"><div class="top"><h4>La información como ventaja, con ética</h4><span class="pill ext">Amazon · Netflix</span></div><p>Los "espías" de hoy son los datos. Amazon y Netflix deciden según el comportamiento de sus usuarios, y en Panamá la banca y el comercio ya usan analítica. Pero el espionaje industrial o el mal uso de datos personales no es estrategia: es una falta que destruye reputaciones.</p></div>
+      <div class="case"><div class="top"><h4>Cooperar cuando conviene</h4><span class="pill">Star Alliance</span></div><p>Copa forma parte de Star Alliance junto a aerolíneas con las que compite en otras rutas. La estrategia moderna también incluye alianzas, gremios y acuerdos de código compartido.</p></div>
+    </div>
+  </section>
+
+  <div class="takeaway"><div><p class="eyebrow">Hallazgo de la expedición</p><p>La estrategia debe ser flexible, basada en información y ejecutada con ética. Sun Tzu escribió para generales, pero sus ideas sirven a cualquiera que quiera crear una empresa.</p></div></div>
+</article>
+
+<!-- ================================================= -->
+<!-- ENTRADA 4 · EDWARD CAMAÑO                         -->
+<!-- ================================================= -->
+<article class="post" id="camano" data-book="b2" style="--c:var(--b2);--cs:var(--b2s)">
+  <div class="cover">
+    <div>
+      <p class="num">Expedición III · Entre la Espada y el Reloj · <em>El arte de la guerra</em> y <em>7 ladrones del tiempo</em></p>
+      <h2>Estrategia y dominio propio: casi siempre se gana o se pierde antes de empezar</h2>
+      <div class="who"><div class="avatar">EC</div><span>Bitácora de <b>Camaño, Edward</b> · Lectura de 8 min</span></div>
+    </div>
+    <svg viewBox="0 0 220 220" aria-hidden="true"><circle cx="110" cy="110" r="92" fill="var(--b2s)" stroke="var(--b2)" stroke-width="5"/><circle cx="110" cy="110" r="70" fill="var(--paper-hi)" stroke="var(--b1)" stroke-width="4" stroke-dasharray="4 8"/><path d="M110 54v56l30 20" stroke="var(--b1)" stroke-width="7" fill="none" stroke-linecap="round"/><g transform="rotate(-45 110 110)"><rect x="104" y="12" width="12" height="150" rx="2" fill="var(--paper-hi)" stroke="var(--b2)" stroke-width="4"/><path d="M104 12 L110 -4 L116 12 Z" fill="var(--b2)"/><rect x="84" y="160" width="52" height="11" rx="5" fill="var(--b2)"/><rect x="104" y="171" width="12" height="30" fill="var(--ink)"/></g><circle cx="110" cy="110" r="8" fill="var(--gold)" stroke="var(--ink)" stroke-width="2"/></svg>
+  </div>
+
+  <p class="scene">Lo primero que me sorprendió de <em>El arte de la guerra</em> es lo poco que habla de pelear. El tratado abre pidiendo que se comparen los dos bandos en cinco factores antes de mover a un solo soldado, y más adelante lo dice sin rodeos: el ejército que vence gana primero y entabla la batalla después, mientras que el derrotado lucha primero y recién ahí intenta ganar. Luego leí <em>7 ladrones del tiempo</em> y encontré la misma idea con otro enemigo. Para Sun Tzu el adversario es otro ejército; para Alberto Pena somos nosotros mismos, con nuestras interrupciones, improvisaciones y reuniones sin rumbo. Por eso decidí leer los dos libros juntos, como un puente entre el Campamento de la Espada y la Torre del Reloj. Pena me resultó más incómodo, porque no deja espacio para culpar a nadie más.</p>
+
+  <section class="part">
+    <div class="part-h"><span class="n">1</span><h3>Beneficios que encontré en mi crecimiento</h3></div>
+    <div class="benefits">
+      <div class="benefit">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="var(--b2)" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg></div>
+        <h4>Personal</h4>
+        <p>El hilo común de ambos libros es el dominio de uno mismo. Sun Tzu dice que la invencibilidad depende de uno y la vulnerabilidad del adversario; Pena repite que lo único controlable es la propia conducta, no el reloj ni el entorno. Dejé de buscar culpables afuera cuando algo no me sale.</p>
+        <p class="ex"><b>Ejemplo</b>Cuando llega una tarea nueva, la anoto en mi lista en vez de empezarla de inmediato, como recomienda Pena.</p>
+      </div>
+      <div class="benefit">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="var(--b2)" stroke-width="2"><path d="M3 11l9-7 9 7v9H3z"/><path d="M9 20v-6h6v6"/></svg></div>
+        <h4>Familiar</h4>
+        <p>Los dos autores coinciden en el valor del descanso. Sun Tzu aconseja cuidar la salud de los soldados y esperar descansado a un enemigo fatigado; Pena defiende que el descanso es sagrado y que ningún correo debería interrumpirlo. Ese tiempo ahora es para mi familia.</p>
+        <p class="ex"><b>Ejemplo</b>Después de cierta hora no reviso correos ni grupos de la universidad: ese rato es para estar en casa.</p>
+      </div>
+      <div class="benefit">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="var(--b2)" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div>
+        <h4>Profesional</h4>
+        <p>Para quien estudia gestión de proyectos, Sun Tzu suena a planeación estratégica con otro vocabulario. Me quedo con dos hábitos que ya aplico en los trabajos en equipo: definir antes de cada reunión qué se espera conseguir y conocer el contexto antes de empezar a ejecutar.</p>
+        <p class="ex"><b>Ejemplo</b>Antes de una reunión de grupo envío una línea: "Al terminar debemos tener definido…".</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="part">
+    <div class="part-h"><span class="n">2</span><h3>Cinco puntos esenciales para el liderazgo</h3></div>
+    <ol class="lead">
+      <li><div><b>Ganar en la mesa de planificación</b><p>Sun Tzu compara doctrina, tiempo, terreno, mando y disciplina antes de cualquier campaña. El líder decide la batalla antes de librarla.</p></div></li>
+      <li><div><b>Concentrar la fuerza en lo que decide el resultado</b><p>Las dos o tres tareas clave de Pena son una versión personal de la economía de fuerzas de Sun Tzu: poner la energía donde se define el resultado y no repartirla en veinte frentes.</p><p class="ex"><b>En la práctica</b>Rechazar la multitarea: la ventaja está en concentrarse mientras el rival se dispersa.</p></div></li>
+      <li><div><b>Actuar con rapidez</b><p>Una operación prolongada nunca beneficia a un país, porque agota los recursos y desanima a la tropa. Los proyectos eternos desgastan igual a un equipo.</p></div></li>
+      <li><div><b>Adaptarse como el agua</b><p>La victoria no se repite igual: cambia según el adversario y el terreno. Lo que funcionó ayer puede no funcionar mañana.</p></div></li>
+      <li><div><b>Informar al equipo, no mantenerlo a oscuras</b><p>No comparto la idea de Sun Tzu de ocultar los planes a la tropa. En un equipo actual ocurre lo contrario: se rinde más cuando todos entienden el objetivo.</p></div></li>
+    </ol>
+    <blockquote class="pull">"El ejército que vence gana primero y entabla la batalla después; el derrotado lucha primero e intenta ganar después."<cite>Sun Tzu (2003), cap. 4</cite></blockquote>
+    <div class="tool" aria-labelledby="f5-t">
+      <p class="eyebrow" id="f5-t" style="color:var(--b2)">Herramienta interactiva · Los cinco factores de Sun Tzu aplicados a un emprendimiento de software</p>
+      <div class="chips" role="group" aria-label="Cinco factores">
+        <button type="button" id="k-doc" data-k="doc" aria-pressed="true">Doctrina</button>
+        <button type="button" id="k-tie" data-k="tie" aria-pressed="false">Tiempo</button>
+        <button type="button" id="k-ter" data-k="ter" aria-pressed="false">Terreno</button>
+        <button type="button" id="k-man" data-k="man" aria-pressed="false">Mando</button>
+        <button type="button" id="k-dis" data-k="dis" aria-pressed="false">Disciplina</button>
+      </div>
+      <p class="answer" id="k-out" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <section class="part">
+    <div class="part-h"><span class="n">3</span><h3>Cómo fortalece el recurso humano</h3></div>
+    <div class="prose">
+      <p>Ambos libros, leídos juntos, dicen algo importante sobre las personas: el talento rinde cuando está descansado, concentrado e informado. Sun Tzu pide cuidar la salud de la tropa y Pena pide proteger a la gente de las interrupciones, que según él pueden costar hasta diez minutos de concentración cada una y convierten los días de trabajo en "momentos de trabajo".</p>
+      <p>Pero hay que leerlos con criterio. Varios consejos de Pena, como desinstalar todos los notificadores o silenciar el teléfono por dos horas, suponen un trabajador con autonomía sobre su agenda. Un agente de soporte, un cajero o un supervisor de turno no pueden hacerlo. Ahí recursos humanos tiene que diseñar los puestos para que la concentración sea posible, y no dejarlo solo en manos de cada persona.</p>
+      <p>De Sun Tzu tampoco acepto todo. En una empresa el engaño destruye la confianza de clientes y empleados, que es muy difícil de reconstruir. Prefiero leerlo como discreción estratégica. Lo que sí rescato es su humildad: la información vale más que la fuerza bruta, y eso empieza por un equipo bien informado.</p>
+    </div>
+  </section>
+
+  <section class="part">
+    <div class="part-h"><span class="n">4</span><h3>Cinco aspectos que ayudan al crecimiento de las organizaciones</h3></div>
+    <div class="cases">
+      <div class="case"><div class="top"><h4>La disciplina como ventaja visible</h4><span class="pill">Tocumen · 9°04′N 79°23′O</span></div><span class="fig">90.75 %</span><p>Copa Airlines fue reconocida por undécima vez como la aerolínea más puntual de Latinoamérica en 2025, con una red de más de 85 destinos en 32 países. En un hub, un atraso afecta todas las conexiones que dependen de ese vuelo; planificar para no improvisar se vuelve supervivencia comercial.</p></div>
+      <div class="case"><div class="top"><h4>Ocupar primero el terreno de intersección</h4><span class="pill">Sun Tzu · cap. 11</span></div><p>El tratado habla del terreno donde convergen las rutas, que conviene ocupar primero porque quien lo controla atrae a los demás. Mi interpretación es que el Hub de las Américas encaja en esa idea: Panamá puso la posición geográfica y Copa construyó encima una operación puntual.</p></div>
+      <div class="case"><div class="top"><h4>Escuchar al usuario y adaptarse</h4><span class="pill">Yappy · Panamá</span></div><span class="fig">+1 millón</span><p>La plataforma de pagos de Banco General se lanzó en 2019 y superó el millón de usuarios. Atendió una de las primeras quejas, no poder recuperar un envío hecho por error, y agregó la devolución inmediata. Es la adaptación del agua de la que habla Sun Tzu.</p></div>
+      <div class="case"><div class="top"><h4>Ganar sin combatir mediante alianzas</h4><span class="pill">Yappy · Banistmo</span></div><p>Yappy fue integrando a otros bancos, como Banistmo. En lugar de pelear por cada cliente, convirtió a posibles competidores en parte de su red, como aconseja Sun Tzu en los terrenos de comunicación.</p></div>
+      <div class="case"><div class="top"><h4>No confiarse en la fórmula que ya ganó</h4><span class="pill ext">Blockbuster · EE. UU.</span></div><span class="fig">2010</span><p>La explicación popular es que Blockbuster no vio venir a Netflix, pero un reportaje de CNBC (2020) muestra que tuvo varias oportunidades de frenarla e incluso sumó suscriptores en línea. El problema fue de lentitud más que de ceguera. La pregunta de Pena, "¿esto de verdad me sirve?", toda empresa debería hacérsela con sus procesos antes de que el mercado la haga por ella.</p></div>
+    </div>
+  </section>
+
+  <div class="takeaway"><div><p class="eyebrow">Hallazgo de la expedición</p><p>Sun Tzu resiste porque habla de principios; Pena depende más de herramientas de 2010. Los leo como guías de pensamiento, no como reglamentos. Dos autores separados por veinticinco siglos coinciden en que casi siempre se gana o se pierde antes de empezar.</p></div></div>
+</article>
+
+<!-- ================================================= -->
+<!-- ENTRADA 5 · GONZALO HOOKER                        -->
+<!-- ================================================= -->
+<article class="post" id="hooker" data-book="b3" style="--c:var(--b3);--cs:var(--b3s)">
+  <div class="cover">
+    <div>
+      <p class="num">Expedición IV · Puerto del Mundo · <em>El mundo es tuyo pero tienes que ganártelo</em></p>
+      <h2>Soñar en grande y trabajar con excelencia: Kim Woo-Choong en Panamá</h2>
+      <div class="who"><div class="avatar">GH</div><span>Bitácora de <b>Hooker, Gonzalo</b> · Lectura de 8 min</span></div>
+    </div>
+    <svg viewBox="0 0 220 220" aria-hidden="true"><path d="M12 192 L70 108 L104 148 L150 62 L208 192 Z" fill="var(--b3s)" stroke="var(--b3)" stroke-width="6" stroke-linejoin="round"/><path d="M150 62V18l30 12-30 12" fill="var(--gold)" stroke="var(--b3)" stroke-width="5" stroke-linejoin="round"/><path d="M40 192c20-30 40-30 56-20s30 10 44-6" fill="none" stroke="var(--b3)" stroke-width="4" stroke-dasharray="3 10" stroke-linecap="round"/><circle cx="40" cy="192" r="8" fill="var(--b3)"/></svg>
+  </div>
+
+  <p class="scene">En 1967 un joven coreano fundó una empresa con 10,000 dólares, en un país que había quedado devastado por la guerra y cuyo producto por habitante rondaba los 50 dólares. En sus años de universidad caminaba dos horas diarias para llegar a clases, sin dinero en los bolsillos, pero con sueños que lo empujaban. Ese joven era Kim Woo-Choong y esa empresa se convirtió en Daewoo. En 1989 escribió este libro para la juventud de su país. Al leerlo pensé que Panamá vive su propio reto de desarrollo y que sus lecciones sobre los sueños, el tiempo, el esfuerzo y el dinero nos hablan directamente a nosotros.</p>
+
+  <section class="part">
+    <div class="part-h"><span class="n">1</span><h3>Beneficios que encontré en mi crecimiento</h3></div>
+    <div class="benefits">
+      <div class="benefit">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="var(--b3)" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg></div>
+        <h4>Personal</h4>
+        <p>Kim dice que una juventud sin sueños es como una nave sin timón, y compara el tiempo con una saeta disparada que nunca regresa. A diferencia del dinero, el tiempo no se vuelve a ganar. Eso me hizo valorar cada hora de estudio.</p>
+        <p class="ex"><b>Ejemplo</b>Me puse una meta de largo plazo para mi carrera y la divido en metas por semestre.</p>
+      </div>
+      <div class="benefit">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="var(--b3)" stroke-width="2"><path d="M3 11l9-7 9 7v9H3z"/><path d="M9 20v-6h6v6"/></svg></div>
+        <h4>Familiar</h4>
+        <p>La imagen de la madre araña que se sacrifica para que sus crías sobrevivan me hizo ver el esfuerzo de mi familia por mi educación. También tomé su consejo sobre el dinero: no malgastar ni un centavo, pero no dudar en invertir cuando es necesario.</p>
+        <p class="ex"><b>Ejemplo</b>Prefiero ahorrar en gastos pequeños para invertir en un curso o una herramienta que me sirva de verdad.</p>
+      </div>
+      <div class="benefit">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="var(--b3)" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div>
+        <h4>Profesional</h4>
+        <p>Kim critica el "síndrome de lo estrictamente necesario": hacer solo lo mínimo. Para él, lo suficientemente bueno no basta. Ahora intento que cada entrega vaya un paso más allá de lo que se pide.</p>
+        <p class="ex"><b>Ejemplo</b>En un proyecto de clase, además de que el programa funcione, agrego pruebas y documentación.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="part">
+    <div class="part-h"><span class="n">2</span><h3>Cinco puntos esenciales para el liderazgo</h3></div>
+    <ol class="lead">
+      <li><div><b>Sentido de misión y de sacrificio</b><p>Para Kim, el liderazgo no llega con un cargo alto. Llega solo a quienes tienen ambos sentidos, el de misión y el de sacrificio por el bien común.</p></div></li>
+      <li><div><b>Decidir con análisis propio</b><p>En 1984 compró una refinería en Amberes, Bélgica, que otras empresas habían rechazado. La decisión salió de un análisis que incluyó finanzas, potencial humano y mercado.</p><p class="ex"><b>En la práctica</b>Escuchar a los consejeros, pero asumir que la decisión final es del líder.</p></div></li>
+      <li><div><b>Reciprocidad</b><p>Cuando un lado se lleva todo a costa del otro, la relación no dura. Daewoo procuraba que sus socios ganaran tanto como la propia empresa.</p></div></li>
+      <li><div><b>La excelencia como estándar</b><p>Quien aspira a ser el mejor en su campo, aunque no gane siempre, queda muy cerca de hacerlo.</p></div></li>
+      <li><div><b>Disposición a innovar</b><p>Kim cuenta que sugirió poner un anuncio en el espacio de la tira cómica de un periódico, la sección que todos leen primero, y poco después vio su idea aplicada. Innovar no es tan difícil; lo difícil es querer hacerlo.</p></div></li>
+    </ol>
+    <blockquote class="pull">"La historia es de los soñadores."<cite>Kim Woo-Choong (1989), p. 10</cite></blockquote>
+  </section>
+
+  <section class="part">
+    <div class="part-h"><span class="n">3</span><h3>Cómo fortalece el recurso humano</h3></div>
+    <div class="prose">
+      <p>Kim pone a las personas en el centro: formarlas, exigirles excelencia y compartir con ellas los beneficios. En Panamá hay empresas que ya trabajan así. IPL Group, fundada en 2018 en la Zona Libre de Colón con capital 100% panameño, contrata como principal fuerza laboral a jóvenes sin experiencia y los prepara con programas intensivos de capacitación.</p>
+      <p>El Ministerio de Trabajo creó el reconocimiento "Yo Sí Cumplo Más" para empresas que van más allá de lo que exige la ley; en 2025 lo recibieron 34 empresas. Y en Grupo ISA Panamá, reconocido por Great Place to Work, el 94% de los colaboradores afirmó que la gerencia es honesta y ética.</p>
+      <p>Pero hay que leer a Kim con criterio. Él y su equipo trabajaban de cinco de la mañana a nueve de la noche, algo que respondía a una Corea que debía industrializarse a toda prisa. Hoy esa exigencia tiene que equilibrarse con entornos justos, equitativos y seguros. Lo valioso es la actitud, no el horario.</p>
+    </div>
+  </section>
+
+  <section class="part">
+    <div class="part-h"><span class="n">4</span><h3>Cinco aspectos que ayudan al crecimiento de las organizaciones</h3></div>
+    <div class="cases">
+      <div class="case"><div class="top"><h4>Innovación aplicada a problemas reales</h4><span class="pill">Kilowattia · Panamá</span></div><span class="fig">hasta −30%</span><p>Ganó el Premio Nacional a la Innovación Empresarial 2025 con un agente de IA en la nube que ajusta equipos en tiempo real y reduce el consumo de energía.</p></div>
+      <div class="case"><div class="top"><h4>Sueños sin fronteras</h4><span class="pill">Atomchat · Panamá</span></div><p>Esta startup de IA fue distinguida en el OpenAI DevDay 2025 y conecta empresas con sus clientes desde México hasta Argentina. Desde Panamá se puede construir tecnología de clase mundial.</p></div>
+      <div class="case"><div class="top"><h4>Academia y empresa juntas</h4><span class="pill">Naturany · UTP</span></div><span class="fig">−80% aceite</span><p>Incubada en nuestra universidad, transforma plátano, yuca, camote y banano en snacks saludables con tecnología de convección forzada.</p></div>
+      <div class="case"><div class="top"><h4>Uso prudente del capital</h4><span class="pill">Principio de Kim</span></div><p>El dinero se usa cuando es rentable para uno mismo y para otros. Boxit Holding lo muestra: sus lockers automatizados concentran entregas, reducen viajes y ya llegaron a Nueva York.</p></div>
+      <div class="case"><div class="top"><h4>Ética y excelencia de la mano</h4><span class="pill">Banco General · Panamá</span></div><p>Ocupó el primer lugar en responsabilidad ESG en el ranking Merco 2025. El éxito económico y la responsabilidad social no se oponen.</p></div>
+    </div>
+  </section>
+
+  <div class="takeaway"><div><p class="eyebrow">Hallazgo de la expedición</p><p>El talento técnico solo tiene sentido cuando sirve a una visión. Como dice el título, el mundo es de quienes están dispuestos a ganárselo.</p></div></div>
+</article>
+
+<!-- ================= APORTES ================= -->
+<section class="block" id="aportes" aria-labelledby="ap-t">
+  <p class="eyebrow">Aportes generales · Diario de a bordo</p>
+  <h2 id="ap-t">Tres libros, una misma idea de liderazgo</h2>
+  <p class="prose">Al poner los tres libros lado a lado, encontramos que coinciden en lo esencial: el líder no reacciona, decide con intención. Cada uno lo aplica a un terreno distinto.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Tema</th><th style="color:var(--b1)">Torre del Reloj · Pena</th><th style="color:var(--b2)">Campamento de la Espada · Sun Tzu</th><th style="color:var(--b3)">Puerto del Mundo · Kim</th></tr></thead>
+      <tbody>
+        <tr><td><b>El tiempo</b></td><td>Lo roban los malos hábitos, no el reloj</td><td>Factor estratégico: llegar primero</td><td>Una saeta que nunca regresa</td></tr>
+        <tr><td><b>El líder</b></td><td>No interrumpe y da el ejemplo</td><td>Doctrina, mando y disciplina</td><td>Misión y sacrificio por el bien común</td></tr>
+        <tr><td><b>Las personas</b></td><td>Proteger concentración y descanso</td><td>Cada cual donde aporta más</td><td>Formar talento y compartir beneficios</td></tr>
+        <tr><td><b>Crecer</b></td><td>Menos reuniones y correos inútiles</td><td>Diferenciarse y anticiparse</td><td>Innovar y buscar la excelencia</td></tr>
+        <tr><td><b>Su límite</b></td><td>Supone mucha autonomía; ejemplos de 2010</td><td>El engaño no tiene lugar en negocios éticos</td><td>Jornadas extremas de la posguerra</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tool quiz" aria-labelledby="qz-t">
+    <p class="eyebrow" id="qz-t">Herramienta interactiva · ¿A qué territorio deberías viajar primero?</p>
+    <div class="q"><p>¿Cuál es tu mayor reto hoy?</p>
+      <div class="chips" role="group" aria-label="Reto">
+        <button type="button" id="q-b1" data-q="b1" aria-pressed="false">No me alcanza el día</button>
+        <button type="button" id="q-b2" data-q="b2" aria-pressed="false">Destacar frente a la competencia</button>
+        <button type="button" id="q-b3" data-q="b3" aria-pressed="false">Encontrar motivación y rumbo</button>
+      </div>
+    </div>
+    <div class="result" id="q-res" aria-live="polite"></div>
+  </div>
+
+  <p class="eyebrow" style="margin-top:12px">Enlaces y documentos de apoyo</p>
+  <div class="links">
+    <a href="https://foxbusiness.com/lifestyle/e-commerce-giant-cancels-76500-hours-meetings-new-year" target="_blank" rel="noopener" style="--c:var(--b1)"><span class="src">FB</span><span><b>Shopify cancela 76,500 horas de reuniones</b><small>FOX Business · 2023</small></span></a>
+    <a href="https://abcnews.go.com/blogs/business/2011/11/tech-company-implements-employee-zero-email-policy" target="_blank" rel="noopener" style="--c:var(--b1)"><span class="src">ABC</span><span><b>Atos y su política de cero correos</b><small>ABC News · 2011</small></span></a>
+    <a href="https://www.tvn-2.com/nacionales/proponen-prohibir-empleadores-exijan-respuestas-fuera-jornada-laboral-desconexion-digital_1_2250655.html" target="_blank" rel="noopener" style="--c:var(--b1)"><span class="src">TVN</span><span><b>Propuesta de desconexión digital en Panamá</b><small>TVN Noticias</small></span></a>
+    <a href="https://datareportal.com/reports/digital-2026-panama" target="_blank" rel="noopener" style="--c:var(--b1)"><span class="src">DR</span><span><b>Digital 2026: Panamá</b><small>DataReportal · Kepios</small></span></a>
+    <a href="https://pancanal.com" target="_blank" rel="noopener" style="--c:var(--b2)"><span class="src">ACP</span><span><b>Programa de ampliación del Canal</b><small>Autoridad del Canal de Panamá</small></span></a>
+    <a href="https://news.gallup.com/businessjournal/23146/too-many-interruptions-work.aspx" target="_blank" rel="noopener" style="--c:var(--b1)"><span class="src">G</span><span><b>Too many interruptions at work?</b><small>Gallup Business Journal</small></span></a>
+    <a href="https://www.laestrella.com.pa/vida-y-cultura/panama-apuesta-por-la-innovacion-PN11583837" target="_blank" rel="noopener" style="--c:var(--b3)"><span class="src">LE</span><span><b>Panamá apuesta por la innovación</b><small>La Estrella de Panamá · 2025</small></span></a>
+    <a href="https://www.britannica.com/print/article/317905" target="_blank" rel="noopener" style="--c:var(--b3)"><span class="src">EB</span><span><b>Biografía de Kim Woo-Choong</b><small>Encyclopaedia Britannica</small></span></a>
+  </div>
+</section>
+
+<!-- ================= CONCLUSIÓN ================= -->
+<section class="block" id="conclusion" aria-labelledby="co-t">
+  <p class="eyebrow">Conclusión · Fin del viaje</p>
+  <h2 id="co-t">El reloj, la espada y el mundo, en nuestras manos</h2>
+  <div class="prose">
+    <p class="dropcap">Los tres libros se escribieron en épocas y lugares muy distintos, pero nos dejan una enseñanza común: liderar es decidir con intención. Alberto Pena nos enseñó a proteger el tiempo y la concentración, propios y del equipo. Sun Tzu nos enseñó a conocernos, a conocer el entorno y a competir sin desgastarnos. Kim Woo-Choong nos recordó que los sueños grandes solo se alcanzan con esfuerzo, excelencia y sentido de servicio.</p>
+    <p>También coincidimos en que ninguno puede aplicarse al pie de la letra. La guía de Pena supone una autonomía que no todos los trabajadores tienen, el engaño de Sun Tzu no cabe en los negocios éticos y las jornadas de Kim hoy deben equilibrarse con el bienestar de las personas. Cada lectura fortalece al recurso humano solo cuando la organización pone a las personas en el centro y cada individuo hace su parte.</p>
+    <p>Como futuros ingenieros de software y emprendedores, nos quedamos con una pregunta para cada día: lo que estoy por hacer, ¿me acerca a lo que de verdad quiero lograr?</p>
+  </div>
+</section>
+
+<!-- ================= REFERENCIAS ================= -->
+<section class="block" id="referencias" aria-labelledby="re-t">
+  <p class="eyebrow">Bibliografía y referencias · Archivo del cartógrafo</p>
+  <h2 id="re-t">Referencias</h2>
+  <div class="refs">
+    <p>ABC News. (2011). <i>Tech firm implements employee 'zero email' policy</i>. https://abcnews.go.com/blogs/business/2011/11/tech-company-implements-employee-zero-email-policy</p>
+    <p>Autoridad del Canal de Panamá. (s. f.). <i>Programa de ampliación del Canal de Panamá</i>. https://pancanal.com</p>
+    <p>CNBC. (2020, 22 de septiembre). <i>How Netflix almost lost the movie rental wars to Blockbuster</i>. https://www.cnbc.com/2020/09/22/how-netflix-almost-lost-the-movie-rental-wars-to-blockbuster.html</p>
+    <p>Emprendedor.com. (2023, 27 de marzo). <i>¿El regreso de Blockbuster? La icónica cadena de alquiler de películas podría estar de vuelta</i>. https://emprendedor.com/el-regreso-de-blockbuster-podria-estar-de-vuelta/</p>
+    <p>Empresas &amp; Management. (2026). <i>Copa Airlines, premiada por undécima ocasión como líder en puntualidad en Latinoamérica</i>. https://www.revistaeyn.com/empresasymanagement/copa-airlines-premiada-por-undecima-ocasion-como-lider-en-puntualidad-en-latinoamerica-IC28800484</p>
+    <p>Encyclopaedia Britannica. (s. f.). <i>Kim Woo Choong</i>. https://www.britannica.com/print/article/317905</p>
+    <p>FOX Business. (2023). <i>E-commerce giant cancels 76,500 hours of meetings in new year</i>. https://foxbusiness.com/lifestyle/e-commerce-giant-cancels-76500-hours-meetings-new-year</p>
+    <p>Gallup. (s. f.). <i>Too many interruptions at work?</i> Gallup Business Journal. https://news.gallup.com/businessjournal/23146/too-many-interruptions-work.aspx</p>
+    <p>Kepios. (2026). <i>Digital 2026: Panama</i>. DataReportal. https://datareportal.com/reports/digital-2026-panama</p>
+    <p>Kim, W. C., y Mauborgne, R. (2005). <i>Blue ocean strategy: How to create uncontested market space and make the competition irrelevant</i>. Harvard Business School Press.</p>
+    <p>Kim, W.-C. (1989). <i>El mundo es tuyo pero tienes que ganártelo</i>.</p>
+    <p>La Estrella de Panamá. (2025, 4 de abril). <i>Panamá apuesta por la innovación</i>. https://www.laestrella.com.pa/vida-y-cultura/panama-apuesta-por-la-innovacion-PN11583837</p>
+    <p>La Estrella de Panamá. (s. f.). <i>Así funcionará la integración de Yappy en la banca móvil de Banistmo</i>. https://www.laestrella.com.pa/economia/asi-funcionara-la-integracion-de-yappy-en-la-banca-movil-de-banistmo-DO26288649</p>
+    <p>La Prensa. (s. f.-a). <i>¿Qué hacer si se envía dinero por error en Yappy?</i> https://www.prensa.com/economia/que-hacer-si-se-envia-dinero-por-error-en-yappy/</p>
+    <p>La Prensa. (s. f.-b). <i>Yappy activa función para devolver dinero de forma inmediata</i>. https://www.prensa.com/economia/yappy-activa-funcion-para-devolver-dinero-de-forma-inmediata/</p>
+    <p>McNeilly, M. R. (1996). <i>Sun Tzu and the art of business: Six strategic principles for managers</i>. Oxford University Press.</p>
+    <p>Pena, A. (2010). <i>7 ladrones del tiempo y 7 técnicas para combatirlos</i> [Guía práctica especial de gestión personal]. Club EresProductivo.</p>
+    <p>Porter, M. E. (2008). The five competitive forces that shape strategy. <i>Harvard Business Review, 86</i>(1), 78–93.</p>
+    <p>Sun Tzu. (2003). <i>El arte de la guerra</i> [Archivo PDF]. Material de lectura del curso Formación Empresarial, Universidad Tecnológica de Panamá.</p>
+    <p>TVN Noticias. (s. f.). <i>Proponen prohibir que empleadores exijan respuestas fuera de la jornada laboral</i>. https://www.tvn-2.com/nacionales/proponen-prohibir-empleadores-exijan-respuestas-fuera-jornada-laboral-desconexion-digital_1_2250655.html</p>
+  </div>
+</section>
+
+<footer><span><b>El Reloj, la Espada y el Mundo</b> · Grupo 1SF241 · FISC, Universidad Tecnológica de Panamá · 2026</span><span>Madrid, M. · González, E. · Camaño, E. · Hooker, G.</span></footer>
+</div>
+
+<script>
+(function(){
+  var btns=document.querySelectorAll('nav.filter button'), posts=document.querySelectorAll('article.post');
+  btns.forEach(function(b){b.addEventListener('click',function(){
+    var f=b.dataset.f;
+    btns.forEach(function(x){x.setAttribute('aria-pressed',String(x===b))});
+    posts.forEach(function(p){p.hidden=!(f==='all'||p.dataset.book===f)});
+  })});
+  var h=location.hash.slice(1); if(h){var el=document.getElementById(h); if(el){posts.forEach(function(p){p.hidden=false}); el.scrollIntoView();}}
+
+
+  // Navegación desde el mapa, los sellos y la leyenda
+  function go(id){
+    var el=document.getElementById(id); if(!el) return;
+    var bk=el.dataset.book;
+    btns.forEach(function(x){x.setAttribute('aria-pressed',String(x.dataset.f===bk))});
+    posts.forEach(function(p){p.hidden=p.dataset.book!==bk});
+    var smooth=!window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    el.scrollIntoView({behavior:smooth?'smooth':'auto',block:'start'});
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  document.querySelectorAll('[data-go]').forEach(function(a){
+    a.addEventListener('click',function(e){e.preventDefault();go(a.dataset.go);});
+  });
+
+  var ci=document.getElementById('c-int'), cm=document.getElementById('c-min');
+  function calc(){
+    var n=+ci.value, m=+cm.value, hrs=n*m*5/60, pct=Math.min(100,Math.round(hrs/40*100));
+    document.getElementById('c-int-v').textContent=n;
+    document.getElementById('c-min-v').textContent=m;
+    document.getElementById('c-out').textContent=(Math.round(hrs*10)/10).toLocaleString('es-PA')+' h';
+    document.getElementById('c-bar').style.width=pct+'%';
+    document.getElementById('c-note').textContent='Equivale al '+pct+'% de una semana laboral de 40 horas'+(pct>=25?'. Más de un día completo de trabajo se va en recuperar la concentración.':'.');
+  }
+  ci.addEventListener('input',calc); cm.addEventListener('input',calc); calc();
+
+  var K={
+    doc:'Doctrina → En VersaFlex, todo el equipo debe saber que la meta es hacer realidad la idea de cada cliente partiendo de plantillas ya construidas. Si alguien cree que la meta es "hacer software barato", la estrategia se rompe.',
+    tie:'Tiempo → Lanzar una solución digital cuando las pequeñas empresas panameñas buscan digitalizarse, y no cuando el mercado ya está lleno de alternativas iguales.',
+    ter:'Terreno → Elegir un nicho local donde las grandes plataformas internacionales no llegan con la misma cercanía ni con atención en español.',
+    man:'Mando → Un líder que cumple sus propios plazos, escucha al equipo y decide con criterio gana una autoridad que ningún título le da.',
+    dis:'Disciplina → Roles definidos, control de versiones, revisiones de código y entregas en fecha. Sin esto, la mejor idea se queda en borrador.'
+  };
+  var kb=document.querySelectorAll('[data-k]'), out=document.getElementById('k-out');
+  kb.forEach(function(b){b.addEventListener('click',function(){
+    kb.forEach(function(x){x.setAttribute('aria-pressed',String(x===b))}); out.textContent=K[b.dataset.k];
+  })});
+  out.textContent=K.doc;
+
+  var Q={
+    b1:['var(--b1s)','Torre del Reloj · 7 ladrones del tiempo','Empieza por medir tus interrupciones y lee las entradas de María y Edward.','#madrid'],
+    b2:['var(--b2s)','Campamento de la Espada · El arte de la guerra','Conócete, estudia tu terreno y busca dónde no hay competencia. Lee a Emanuel y a Edward.','#gonzalez'],
+    b3:['var(--b3s)','Puerto del Mundo · El mundo es tuyo','Ponle un sueño grande a tu esfuerzo diario. Lee la entrada de Gonzalo.','#hooker']
+  };
+  var qb=document.querySelectorAll('[data-q]'), res=document.getElementById('q-res');
+  qb.forEach(function(b){b.addEventListener('click',function(){
+    qb.forEach(function(x){x.setAttribute('aria-pressed',String(x===b))});
+    var r=Q[b.dataset.q]; res.style.setProperty('--rs',r[0]);
+    res.innerHTML='<div><span class="eyebrow">Tu destino</span><b>'+r[1]+'</b><span>'+r[2]+' </span><a href="'+r[3]+'">Ir a la entrada</a></div>';
+    res.classList.add('on');
+  })});
+})();
+</script>
+
+</body>
+</html>
